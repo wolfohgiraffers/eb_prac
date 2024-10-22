@@ -1,0 +1,62 @@
+name: ela-prac-service
+
+# cr.yml 이후 pr!!
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        shell: bash
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+        shell: bash
+
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
+
+      - name: Show Current Time
+        run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
+        shell: bash
+        
+      - name: ChatGPT codeReviewer
+        uses: anc95/ChatGPT-CodeReview@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+          # Optional
+          LANGUAGE: Korean
+          REVIEW_COMMENT_PREFIX: "한국어 코드 리뷰:\n\n"
+          OPENAI_API_ENDPOINT: https://api.openai.com/v1
+          MODEL: gpt-3.5-turbo
+          PROMPT: 다음 코드 변경사항에 대해 한국어로 검토해 주시고, 혼란스럽거나 불규칙한 부분이 있는지 확인해 주세요.
+          top_p: 1
+          temperature: 1
+          max_tokens: 10000
+          MAX_PATCH_LENGTH: 10000
