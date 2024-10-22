@@ -55,7 +55,7 @@ jobs:
           REVIEW_COMMENT_PREFIX: "한국어 코드 리뷰:\n\n"
           OPENAI_API_ENDPOINT: https://api.openai.com/v1
           MODEL: gpt-3.5-turbo
-          PROMPT: 다음 코드 변경사항에 대해 한국어로 검토해 주시고, 혼란스럽거나 불규칙한 부분이 있는지 확인해 주세요.
+          PROMPT: 다음 코드 변경사항에 대해 한국어로 검토해 주시고, 혼란스럽거나 불규칙한 부분이 있는지 확인해 주세요!
           top_p: 1
           temperature: 1
           max_tokens: 10000
