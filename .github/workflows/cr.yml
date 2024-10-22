@@ -1,6 +1,6 @@
 name: ela-prac-service
 
-# eb_prac!!
+# eb_prac!
 permissions:
   contents: read
   pull-requests: write
