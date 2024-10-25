@@ -1,6 +1,6 @@
-name: ela-prac-service
+name: eb-proj-service
 
-# cr.yml 이후 pr!!
+# eb_prac!
 permissions:
   contents: read
   pull-requests: write
@@ -60,3 +60,28 @@ jobs:
           temperature: 1
           max_tokens: 10000
           MAX_PATCH_LENGTH: 10000
+
+      - name: Generate deployment package
+        run: |
+          ./gradlew clean build
+          mkdir -p deploy
+          find build/libs -name '*.jar' -exec cp {} deploy/application.jar \;
+          cp Procfile deploy/Procfile
+          cp -r .ebextensions deploy/.ebextensions
+          cp -r .platform deploy/.platform
+          cd deploy && zip -r deploy.zip .
+        shell: bash
+
+      - name: Beanstalk Deploy
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: eb-test
+          environment_name: Eb-test-env
+          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
+          region: ap-northeast-2
+          deployment_package: deploy/deploy.zip
+          use_existing_version_if_available: false
+          wait_for_deployment: true
+          wait_for_environment_recovery: 300
